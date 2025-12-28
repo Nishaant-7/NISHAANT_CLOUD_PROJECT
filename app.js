@@ -220,6 +220,18 @@ function showToast(message, type = "success") {
 }
 
 // Export for Testing
+if (typeof window !== 'undefined') {
+    window.handleFormSubmit = handleFormSubmit;
+    window.editSubject = editSubject;
+    window.clearAll = clearAll;
+}
+
+// Only export for Node.js/Jest environment (fixes module-not-defined)
 if (typeof module !== 'undefined') {
-    module.exports = { subjects, createNewSubject, deleteSubject };
+    module.exports = {
+        calculateCGPA,
+        determineGrade,
+        calculateTotal,
+        validateInput
+    };
 }
