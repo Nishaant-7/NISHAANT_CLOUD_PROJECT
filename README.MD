@@ -13,6 +13,16 @@ We set up a workflow using GitHub Actions that triggers whenever code is pushed 
 * **Security Check:** The pipeline runs an `npm audit` to scan for any security vulnerabilities in the packages we used.
 * **Continuous Deployment:** Once all tests pass, the site is automatically deployed to Netlify (simulating our Cloud/CDN storage).
 
+##  Advanced DevOps Features 
+### 1. Static Code Analysis
+I implemented **ESLint** to enforce code quality standards. This runs automatically in the Test Pipeline.
+
+### 2. Infrastructure as Code (IaC)
+I included **Terraform** configurations (`/terraform/main.tf`) to define our infrastructure state code, adhering to modern DevOps practices.
+
+### 3. Branching Strategy
+I utilized a **Feature Branch Workflow**. All changes are developed on dedicated branches (e.g., `feature/upgrade-v2`) and merged to `main` via Pull Requests only after passing CI checks.
+
 ## Tools & Technologies Used
 * **Frontend:** HTML, CSS (Glassmorphism UI), and vanilla JavaScript.
 * **CI/CD Tool:** GitHub Actions (YAML configuration).
