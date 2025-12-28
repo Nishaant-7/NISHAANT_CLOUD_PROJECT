@@ -1,7 +1,9 @@
 name: Shaan CLoud Final Project Pipeline
+
 on:
   push:
     branches: [ "main" ]
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,7 +23,7 @@ jobs:
         with: { name: build-files }
       
       - name: Install Dependencies
-        run: npm install # Needed for ESLint
+        run: npm install # Needed for ESLint and Jest
 
       # 1. Static Code Analysis (NEW REQUIREMENT)
       - name: Run Static Code Analysis (ESLint)
