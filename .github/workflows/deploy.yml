@@ -1,4 +1,4 @@
-name: Shaan Cloud Final Project Pipeline
+name: Final Project Pipeline
 
 on:
   push:
