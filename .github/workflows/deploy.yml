@@ -21,11 +21,21 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with: { name: build-files }
-      - uses: actions/setup-node@v4
-        with: { node-version: '20' }
-      - run: npm install
-      - run: npm test
-      - run: npm audit --audit-level=moderate || true
+      
+      - name: Install Dependencies
+        run: npm install # Needed for ESLint and Jest
+
+      # 1. Static Code Analysis (NEW REQUIREMENT)
+      - name: Run Static Code Analysis (ESLint)
+        run: npm run lint
+
+      # 2. Unit Testing
+      - name: Run Unit Tests (Jest)
+        run: npm test
+
+      # 3. Security Scanning
+      - name: Security Vulnerability Scan
+        run: npm audit --audit-level=moderate || true
 
   deploy:
     needs: test
