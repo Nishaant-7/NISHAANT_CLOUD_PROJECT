@@ -1,35 +1,35 @@
+/** @jest-environment jsdom */
+
 /* eslint-env jest */
-/**
- * @jest-environment jsdom
- */
 
-test('CGPA Math Logic (Math Check)', () => {
-    // We simulate a student getting an A (4.0) and a B (3.0)
-    const subject1 = { grade: 4.00, credits: 3 }; // 12 points
-    const subject2 = { grade: 3.00, credits: 3 }; // 9 points
-    
-    // Total = 21 points / 6 credits = 3.50 GPA
-    const totalPoints = (subject1.grade * subject1.credits) + (subject2.grade * subject2.credits);
-    const totalCredits = subject1.credits + subject2.credits;
-    const gpa = totalPoints / totalCredits;
+// Import functions if we are in Node environment (for testing)
+const { calculateCGPA, determineGrade, calculateTotal, validateInput } = require('./app');
 
-    expect(gpa).toBeCloseTo(3.50);
+describe('CGPA Math Logic', () => {
+    test('calculateCGPA returns correct value', () => {
+        expect(calculateCGPA(12, 4)).toBe("3.00");
+        expect(calculateCGPA(0, 4)).toBe("0.00");
+    });
+
+    test('determineGrade returns correct letter', () => {
+        expect(determineGrade(4.0)).toBe('A');
+        expect(determineGrade(3.0)).toBe('B');
+        expect(determineGrade(1.9)).toBe('F');
+    });
 });
 
-test('Critical UI Elements Exist', () => {
-    // Create a fake version of your new HTML structure
-    document.body.innerHTML = `
-        <div id="finalGPA"></div>
-        <div id="toast" class="hidden"></div>
-    `;
+describe('Critical UI Elements Exist', () => {
+    test('Check if toast and finalGPA divs exist', () => {
+        // Mock the HTML structure
+        document.body.innerHTML = `
+            <div id="finalGPA"></div>
+            <div id="toast" class="hidden"></div>
+        `;
+        
+        const finalGPA = document.getElementById('finalGPA');
+        const toast = document.getElementById('toast');
 
-    const gpaDisplay = document.getElementById('finalGPA');
-    const toastNotification = document.getElementById('toast');
-
-    // Test 1: Does the GPA display exist?
-    expect(gpaDisplay).not.toBeNull();
-
-    // Test 2: Does the Notification system exist? (New Feature Check)
-    expect(toastNotification).not.toBeNull();
-    expect(toastNotification.classList.contains('hidden')).toBe(true);
+        expect(finalGPA).not.toBeNull();
+        expect(toast).not.toBeNull();
+    });
 });
