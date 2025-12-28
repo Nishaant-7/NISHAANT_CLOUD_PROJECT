@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSU CGPA Planner Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="main-wrapper">
+    <header>
+        <div class="logo-area">
+            <h1>🎓 Student CGPA Planner</h1>
+            <p>DevOps CI/CD Final Project (Full CRUD)</p>
+        </div>
+        <div class="status-badge">System: Online</div>
+    </header>
+
+    <div id="toast" class="toast hidden">Action Successful</div>
+
+    <div class="dashboard-grid">
+        <div class="card input-card">
+            <h3 id="formTitle">Add New Subject</h3>
+            <input type="hidden" id="editId"> <div class="form-group">
+                <input type="text" id="subjectName" placeholder="Subject Name (e.g. Cloud Computing)">
+            </div>
+            <div class="form-row">
+                <select id="gradeSelect">
+                    <option value="4.00">A (4.00)</option>
+                    <option value="3.67">A- (3.67)</option>
+                    <option value="3.33">B+ (3.33)</option>
+                    <option value="3.00">B (3.00)</option>
+                    <option value="2.67">B- (2.67)</option>
+                    <option value="2.33">C+ (2.33)</option>
+                    <option value="2.00">C (2.00)</option>
+                    <option value="1.67">C- (1.67)</option>
+                    <option value="0.00">F (0.00)</option>
+                </select>
+                <input type="number" id="creditHours" placeholder="Credits (e.g. 3)" min="1" max="6">
+            </div>
+            
+            <div class="btn-group">
+                <button onclick="handleFormSubmit()" id="submitBtn" class="btn-primary">+ Add Subject</button>
+                <button onclick="resetForm()" id="cancelBtn" class="btn-secondary hidden">Cancel</button>
+            </div>
+        </div>
+
+        <div class="card stats-card">
+            <h3>Your Performance</h3>
+            <div class="gpa-wrapper">
+                <div class="gpa-display" id="finalGPA">0.00</div>
+                <span class="gpa-label">Current CGPA</span>
+            </div>
+            
+            <div class="target-wrapper">
+                <label>Target CGPA:</label>
+                <input type="number" id="targetGPA" step="0.01" placeholder="3.50" oninput="calculateGap()">
+                <p id="gapMessage" class="gap-text">Set a target above</p>
+            </div>
+
+            <div class="stats-footer">
+                <p id="totalCredits">Credits: 0</p>
+                <button onclick="clearAll()" class="btn-text-danger">Reset All</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card table-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Grade</th>
+                    <th>Credits</th>
+                    <th>Actions (CRUD)</th>
+                </tr>
+            </thead>
+            <tbody id="subjectList">
+                </tbody>
+        </table>
+        <div id="emptyState" class="empty-state">No subjects added yet.</div>
+    </div>
+
+    <footer>
+        <p>Deployed via GitHub Actions to Netlify.</p>
+    </footer>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
