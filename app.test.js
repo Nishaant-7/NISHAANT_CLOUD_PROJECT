@@ -1,34 +1,26 @@
-/**
- * @jest-environment jsdom
- */
+/** @jest-environment jsdom */
 
-test('CGPA Math Logic (Math Check)', () => {
-    // We simulate a student getting an A (4.0) and a B (3.0)
-    const subject1 = { grade: 4.00, credits: 3 }; // 12 points
-    const subject2 = { grade: 3.00, credits: 3 }; // 9 points
-    
-    // Total = 21 points / 6 credits = 3.50 GPA
-    const totalPoints = (subject1.grade * subject1.credits) + (subject2.grade * subject2.credits);
-    const totalCredits = subject1.credits + subject2.credits;
-    const gpa = totalPoints / totalCredits;
+/* eslint-env jest */
 
-    expect(gpa).toBeCloseTo(3.50);
+const app = require('./app');
+
+describe('CGPA Math Logic', () => {
+    test('calculateCGPA returns correct value', () => {
+        // 12 points / 4 credits = 3.00
+        expect(app.calculateCGPA(12, 4)).toBe("3.00");
+    });
+
+    test('determineGrade returns correct letter', () => {
+        expect(app.determineGrade(4.0)).toBe('A');
+        expect(app.determineGrade(2.0)).toBe('C');
+        expect(app.determineGrade(0.0)).toBe('F');
+    });
 });
 
-test('Critical UI Elements Exist', () => {
-    // Create a fake version of your new HTML structure
-    document.body.innerHTML = `
-        <div id="finalGPA"></div>
-        <div id="toast" class="hidden"></div>
-    `;
-
-    const gpaDisplay = document.getElementById('finalGPA');
-    const toastNotification = document.getElementById('toast');
-
-    // Test 1: Does the GPA display exist?
-    expect(gpaDisplay).not.toBeNull();
-
-    // Test 2: Does the Notification system exist? (New Feature Check)
-    expect(toastNotification).not.toBeNull();
-    expect(toastNotification.classList.contains('hidden')).toBe(true);
+describe('Critical UI Elements Exist', () => {
+    test('Mock HTML check', () => {
+        document.body.innerHTML = '<div id="finalGPA"></div>';
+        const finalGPA = document.getElementById('finalGPA');
+        expect(finalGPA).not.toBeNull();
+    });
 });

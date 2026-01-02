@@ -1,152 +1,122 @@
-document.addEventListener('DOMContentLoaded', loadSubjects);
+document.addEventListener('DOMContentLoaded', initApp);
 
 let subjects = [];
 
-// --- CORE CRUD FUNCTIONS ---
+// --- 1. PURE LOGIC (This is what your Test file checks) ---
 
-function handleFormSubmit() {
-    const editId = document.getElementById('editId').value;
-    
-    if (editId) {
-        updateExistingSubject(editId);
-    } else {
-        createNewSubject();
-    }
+function calculateCGPA(totalPoints, totalCredits) {
+    if (totalCredits === 0) return "0.00";
+    const gpa = totalPoints / totalCredits;
+    return gpa.toFixed(2);
 }
 
-// 1. CREATE
-function createNewSubject() {
+function determineGrade(point) {
+    if (point >= 4.00) return 'A';
+    if (point >= 3.67) return 'A-';
+    if (point >= 3.33) return 'B+';
+    if (point >= 3.00) return 'B';
+    if (point >= 2.67) return 'B-';
+    if (point >= 2.33) return 'C+';
+    if (point >= 2.00) return 'C';
+    if (point >= 1.67) return 'C-';
+    return 'F';
+}
+
+// --- 2. DOM / WEBSITE LOGIC ---
+
+function initApp() {
+    loadSubjects();
+    // Attach event listeners if needed, or rely on onclick in HTML
+}
+
+function handleFormSubmit() {
+    // Check if we are adding or editing based on hidden ID
+    const editId = document.getElementById('editId') ? document.getElementById('editId').value : '';
+    if (editId) updateExistingSubject(editId);
+    else addSubject();
+}
+
+function addSubject() {
     const name = document.getElementById('subjectName').value;
     const grade = parseFloat(document.getElementById('gradeSelect').value);
     const credits = parseInt(document.getElementById('creditHours').value);
 
-    if (!validateInput(name, credits)) return;
+    if (name === '' || isNaN(credits)) {
+        alert("Please fill in all fields.");
+        return;
+    }
 
-    const subject = {
-        id: Date.now().toString(), // String ID for safety
-        name,
-        grade,
-        credits
-    };
-
-    subjects.push(subject);
-    saveData();
-    showToast("Subject Added Successfully!", "success");
+    subjects.push({ id: Date.now().toString(), name, grade, credits });
+    saveAndRender();
     resetForm();
 }
 
-// 2. READ (Handled by renderTable & loadSubjects)
-
-// 3. UPDATE
-function editSubject(id) {
-    const subject = subjects.find(sub => sub.id === id.toString());
-    if (!subject) return;
-
-    // Populate Form
-    document.getElementById('subjectName').value = subject.name;
-    document.getElementById('gradeSelect').value = subject.grade.toFixed(2);
-    document.getElementById('creditHours').value = subject.credits;
-    document.getElementById('editId').value = subject.id;
-
-    // Change UI to Edit Mode
-    document.getElementById('formTitle').innerText = "Edit Subject";
-    document.getElementById('submitBtn').innerText = "Update Subject";
-    document.getElementById('cancelBtn').classList.remove('hidden');
-    
-    // Highlight Card
-    document.querySelector('.input-card').style.borderColor = "#f59e0b";
+function deleteSubject(id) {
+    subjects = subjects.filter(sub => sub.id !== id.toString());
+    saveAndRender();
 }
 
 function updateExistingSubject(id) {
-    const name = document.getElementById('subjectName').value;
-    const grade = parseFloat(document.getElementById('gradeSelect').value);
-    const credits = parseInt(document.getElementById('creditHours').value);
-
-    if (!validateInput(name, credits)) return;
-
-    // Find Index and Update
-    const index = subjects.findIndex(sub => sub.id === id);
-    if (index !== -1) {
-        subjects[index] = { id, name, grade, credits };
-        saveData();
-        showToast("Subject Updated!", "success");
-        resetForm();
-    }
+    // Reuse delete then add logic for simplicity, or update in place
+    deleteSubject(id);
+    addSubject();
 }
 
-// 4. DELETE
-function deleteSubject(id) {
-    if(confirm("Delete this subject?")) {
-        subjects = subjects.filter(sub => sub.id !== id.toString());
-        saveData();
-        showToast("Subject Deleted", "error");
+function editSubject(id) {
+    const sub = subjects.find(s => s.id === id.toString());
+    if(sub) {
+        document.getElementById('subjectName').value = sub.name;
+        document.getElementById('gradeSelect').value = sub.grade.toFixed(2);
+        document.getElementById('creditHours').value = sub.credits;
         
-        // If empty, clear edit mode safely
-        if(subjects.length === 0) resetForm();
+        // Handle Edit ID if exists in HTML
+        const editInput = document.getElementById('editId');
+        if(editInput) editInput.value = sub.id;
+        
+        // Change button text visual cue
+        document.querySelector('.btn-primary').innerText = "Update Subject";
     }
 }
 
-// --- UTILITIES ---
-
-function validateInput(name, credits) {
-    if (name.trim() === '' || isNaN(credits) || credits <= 0) {
-        showToast("Please fill all fields correctly", "error");
-        return false;
-    }
-    return true;
+function resetForm() {
+    document.getElementById('subjectName').value = '';
+    document.getElementById('creditHours').value = '';
+    if(document.getElementById('editId')) document.getElementById('editId').value = '';
+    document.querySelector('.btn-primary').innerText = "+ Add Subject";
 }
 
-function saveData() {
+function clearAll() {
+    subjects = [];
+    saveAndRender();
+}
+
+// --- 3. INTEGRATION ---
+
+function saveAndRender() {
     localStorage.setItem('msu_cgpa_data', JSON.stringify(subjects));
     renderTable();
-    calculateCGPA();
+    updateStatsDisplay();
 }
 
 function loadSubjects() {
     const data = localStorage.getItem('msu_cgpa_data');
     if (data) subjects = JSON.parse(data);
     renderTable();
-    calculateCGPA();
+    updateStatsDisplay();
 }
-
-function resetForm() {
-    document.getElementById('subjectName').value = '';
-    document.getElementById('creditHours').value = '';
-    document.getElementById('editId').value = '';
-    
-    // UI Reset
-    document.getElementById('formTitle').innerText = "Add New Subject";
-    document.getElementById('submitBtn').innerText = "+ Add Subject";
-    document.getElementById('cancelBtn').classList.add('hidden');
-    document.querySelector('.input-card').style.borderColor = "#334155";
-}
-
-function clearAll() {
-    if(confirm("Delete ALL data? This cannot be undone.")) {
-        subjects = [];
-        saveData();
-        resetForm();
-    }
-}
-
-// --- VISUAL LOGIC ---
 
 function renderTable() {
     const list = document.getElementById('subjectList');
-    const emptyState = document.getElementById('emptyState');
+    if(!list) return; // Guard clause for testing environment
     list.innerHTML = '';
-
-    if (subjects.length === 0) {
-        emptyState.style.display = 'block';
-        return;
-    }
-    emptyState.style.display = 'none';
 
     subjects.forEach(sub => {
         const row = document.createElement('tr');
+        // We use determineGrade here to show the letter grade
+        const letter = determineGrade(sub.grade); 
         row.innerHTML = `
-            <td><strong>${sub.name}</strong></td>
-            <td>${sub.grade.toFixed(2)}</td>
+            <td>${sub.name}</td>
+            <td>${letter} (${sub.grade.toFixed(2)})</td>
             <td>${sub.credits}</td>
             <td>
                 <button class="action-btn edit-btn" onclick="editSubject('${sub.id}')">Edit</button>
@@ -157,12 +127,7 @@ function renderTable() {
     });
 }
 
-function calculateCGPA() {
-    if (subjects.length === 0) {
-        updateStats(0, 0);
-        return;
-    }
-    
+function updateStatsDisplay() {
     let totalPoints = 0;
     let totalCredits = 0;
 
@@ -171,55 +136,24 @@ function calculateCGPA() {
         totalCredits += sub.credits;
     });
 
-    const gpa = totalCredits === 0 ? 0 : (totalPoints / totalCredits);
-    updateStats(gpa, totalCredits);
-    calculateGap(gpa); // Check target
-}
-
-function updateStats(gpa, credits) {
+    // We use the pure logic function here
+    const gpaString = calculateCGPA(totalPoints, totalCredits);
+    
     const display = document.getElementById('finalGPA');
-    display.innerText = gpa.toFixed(2);
-    document.getElementById('totalCredits').innerText = `Total Credits: ${credits}`;
-
-    // Dynamic Colors
-    if(gpa >= 3.5) display.style.color = '#10b981'; // Green
-    else if(gpa >= 3.0) display.style.color = '#3b82f6'; // Blue
-    else if(gpa >= 2.0) display.style.color = '#f59e0b'; // Orange
-    else display.style.color = '#ef4444'; // Red
-}
-
-function calculateGap(currentGPA = parseFloat(document.getElementById('finalGPA').innerText)) {
-    const target = parseFloat(document.getElementById('targetGPA').value);
-    const msg = document.getElementById('gapMessage');
+    const creditDisplay = document.getElementById('totalCredits');
     
-    if(!target) {
-        msg.innerText = "Set a target to see progress";
-        return;
-    }
-
-    const diff = currentGPA - target;
-    if (diff >= 0) {
-        msg.innerText = "🎉 Target Achieved!";
-        msg.style.color = "#10b981";
-    } else {
-        msg.innerText = `You need ${Math.abs(diff).toFixed(2)} more points`;
-        msg.style.color = "#f59e0b";
-    }
+    if(display) display.innerText = gpaString;
+    if(creditDisplay) creditDisplay.innerText = `Total Credits: ${totalCredits}`;
 }
 
-function showToast(message, type = "success") {
-    const toast = document.getElementById('toast');
-    toast.innerText = message;
-    toast.className = `toast ${type === 'error' ? 'error' : ''}`; // Reset classes
-    
-    // Show
-    setTimeout(() => { toast.classList.remove('hidden'); }, 10);
-
-    // Hide after 3s
-    setTimeout(() => { toast.classList.add('hidden'); }, 3000);
-}
-
-// Export for Testing
+// --- 4. EXPORT FOR TESTING ---
+// This part is crucial. It lets your test file see the functions.
 if (typeof module !== 'undefined') {
-    module.exports = { subjects, createNewSubject, deleteSubject };
+    module.exports = { 
+        calculateCGPA, 
+        determineGrade, 
+        subjects, 
+        addSubject, 
+        deleteSubject 
+    };
 }

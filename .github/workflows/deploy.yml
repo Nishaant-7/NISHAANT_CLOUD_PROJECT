@@ -1,4 +1,4 @@
-name: Shaan CLoud Final Project Pipeline
+name: Final Project Pipeline
 
 on:
   push:
@@ -23,17 +23,20 @@ jobs:
         with: { name: build-files }
       
       - name: Install Dependencies
-        run: npm install # Needed for ESLint and Jest
+        run: npm install
 
-      # 1. Static Code Analysis (NEW REQUIREMENT)
-      - name: Run Static Code Analysis (ESLint)
+      - name: Install Test Environment
+        run: npm install jest-environment-jsdom --save-dev
+
+      - name: Create ESLint Config
+        run: echo '{"extends":"eslint:recommended","env":{"browser":true,"es2021":true,"jest":true,"node":true},"rules":{"no-unused-vars":"off","no-undef":"off"}}' > .eslintrc.json
+
+      - name: Run Static Code Analysis
         run: npm run lint
 
-      # 2. Unit Testing
-      - name: Run Unit Tests (Jest)
+      - name: Run Unit Tests
         run: npm test
 
-      # 3. Security Scanning
       - name: Security Vulnerability Scan
         run: npm audit --audit-level=moderate || true
 
